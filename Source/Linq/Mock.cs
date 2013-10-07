@@ -71,5 +71,19 @@ namespace Moq
 		{
 			return Mocks.CreateMockQuery<T>().First<T>(predicate);
 		}
+
+		/// <summary>
+		/// Creates an mock object of the indicated type.
+		/// </summary>
+		/// <param name="predicate">The predicate with the specification of how the mocked object should behave.</param>
+		/// <param name="defaultValue">Sets the DefaultValue property on the temporary mock created to obtain the instance of T.</param>
+		/// <param name="behavior">Sets the Behavior property on the temporary mock created to obtain instance of T.</param>
+		/// <typeparam name="T">The type of the mocked object.</typeparam>
+		/// <returns>The mocked object created.</returns>
+		[SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures", Justification = "By Design")]
+		public static T Of<T>(Expression<Func<T, bool>> predicate, DefaultValue defaultValue, MockBehavior behavior) where T : class
+		{
+			return Mocks.CreateMockQuery<T>(defaultValue, behavior).First<T>(predicate);
+		}
 	}
 }

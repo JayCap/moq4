@@ -180,6 +180,16 @@ namespace Moq.Tests
 			Assert.Equal("foo", target.Value);
 		}
 
+		[Fact]
+		public void ShouldAllowMockDefaultValueOnFluentSyntax()
+		{
+			var target = Mock.Of<IFoo>(x => x.Name == "foo");
+			var targetWithMockDefault = Mock.Of<IFoo>(x => x.Name == "foo", DefaultValue.Mock, MockBehavior.Loose);
+
+			Assert.Null(target.Bar);
+			Assert.NotNull(targetWithMockDefault.Bar);
+		}
+
 		public void Do()
 		{
 			Console.WriteLine("Done");

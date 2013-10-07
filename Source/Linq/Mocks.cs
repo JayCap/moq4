@@ -86,6 +86,20 @@ namespace Moq
 		}
 
 		/// <summary>
+		/// Access the universe of mocks of the given type, to retrieve those 
+		/// that behave according to the LINQ query specification.
+		/// </summary>
+		/// <param name="specification">The predicate with the setup expressions.</param>
+		/// <param name="defaultValue">Sets the DefaultValue property on the temporary mock created to obtain the instance of T.</param>
+		/// <param name="behavior">Sets the Behavior property on the temporary mock created to obtain instance of T.</param>
+		/// <typeparam name="T">The type of the mocked object to query.</typeparam>
+		[SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures", Justification = "By design")]
+		public static IQueryable<T> Of<T>(Expression<Func<T, bool>> specification, DefaultValue defaultValue, MockBehavior behavior) where T : class
+		{
+			return CreateMockQuery<T>(defaultValue, behavior).Where(specification);
+		}
+
+		/// <summary>
 		/// Creates an mock object of the indicated type.
 		/// </summary>
 		/// <typeparam name="T">The type of the mocked object.</typeparam>
@@ -116,16 +130,29 @@ namespace Moq
 		/// </summary>
 		internal static IQueryable<T> CreateMockQuery<T>() where T : class
 		{
-			return new MockQueryable<T>(Expression.Call(null,
-				((Func<IQueryable<T>>)CreateQueryable<T>).Method));
+			return CreateMockQuery<T>(DefaultValue.Empty, MockBehavior.Default);
+		}
+
+		/// <summary>
+		/// Creates the mock query with the underlying queriable implementation.
+		/// </summary>
+		internal static IQueryable<T> CreateMockQuery<T>(DefaultValue defaultValue, MockBehavior behavior) where T : class
+		{
+			return new MockQueryable<T>(
+				Expression.Call(
+					null,
+					((Func<DefaultValue, MockBehavior, IQueryable<T>>)CreateQueryable<T>).Method,
+					Expression.Constant(defaultValue),
+					Expression.Constant(behavior))
+				);
 		}
 
 		/// <summary>
 		/// Wraps the enumerator inside a queryable.
 		/// </summary>
-		internal static IQueryable<T> CreateQueryable<T>() where T : class
+		internal static IQueryable<T> CreateQueryable<T>(DefaultValue defaultValue, MockBehavior behavior) where T : class
 		{
-			return CreateMocks<T>().AsQueryable();
+			return CreateMocks<T>(defaultValue, behavior).AsQueryable();
 		}
 
 		/// <summary>
@@ -133,11 +160,11 @@ namespace Moq
 		/// transform the queryable query into a normal enumerable query.
 		/// This method is never used directly by consumers.
 		/// </summary>
-		private static IEnumerable<T> CreateMocks<T>() where T : class
+		private static IEnumerable<T> CreateMocks<T>(DefaultValue defaultValue, MockBehavior behavior) where T : class
 		{
 			do
 			{
-				var mock = new Mock<T>();
+				var mock = new Mock<T>(behavior) { DefaultValue = defaultValue };
 				mock.SetupAllProperties();
 
 				yield return mock.Object;
