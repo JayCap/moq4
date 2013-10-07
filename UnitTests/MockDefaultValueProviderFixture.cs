@@ -50,6 +50,19 @@ namespace Moq.Tests
 		}
 
 		[Fact]
+		public void ProvidesEmptyValueIfHasForceEmptyDefaultValueAttribute()
+		{
+			var mock = new Mock<IFoo>();
+			var provider = new MockDefaultValueProvider(mock);
+
+			var value = provider.ProvideDefault(typeof(IFoo).GetProperty("Legacy").GetGetMethod());
+			Assert.Equal(default(ILegacy), value);
+
+			value = provider.ProvideDefault(typeof(IFoo).GetProperty("Bar").GetGetMethod());
+			Assert.NotEqual(default(IBar), value);
+		}
+
+		[Fact]
 		public void NewMocksHaveSameBehaviorAndDefaultValueAsOwner()
 		{
 			var mock = new Mock<IFoo>();
@@ -96,7 +109,16 @@ namespace Moq.Tests
 			string Value { get; set; }
 			IEnumerable<int> Indexes { get; set; }
 			IBar[] Bars { get; set; }
+			ILegacy Legacy { get; set; }
 		}
+
+		[ForceEmptyDefaultValue]
+		public interface ILegacy
+		{
+			Concrete ConcreteLegacy { get; set; }
+		}
+
+		public class Concrete {}
 
 		public interface IBar { void Do(); }
 	}

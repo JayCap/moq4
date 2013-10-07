@@ -118,6 +118,9 @@
     <Compile Include="..\Source\FluentMockContext.cs">
       <Link>FluentMockContext.cs</Link>
     </Compile>
+    <Compile Include="..\Source\ForceEmptyDefaultValueAttribute.cs">
+      <Link>ForceEmptyDefaultValueAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\Source\GlobalSuppressions.cs">
       <Link>GlobalSuppressions.cs</Link>
     </Compile>

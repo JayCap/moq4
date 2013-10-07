@@ -62,7 +62,10 @@ namespace Moq
 			var value = base.ProvideDefault(member);
 
 			Mock mock = null;
-			if (value == null && member.ReturnType.IsMockeable() && !owner.InnerMocks.TryGetValue(member, out mock))
+			if (value == null
+				&& member.ReturnType.IsMockeable()
+				&& !ForceEmptyDefaultValue(member)
+				&& !owner.InnerMocks.TryGetValue(member, out mock))
 			{
 				var mockType = typeof(Mock<>).MakeGenericType(member.ReturnType);
 				mock = (Mock)Activator.CreateInstance(mockType, owner.Behavior);
@@ -72,6 +75,11 @@ namespace Moq
 			}
 
 			return mock != null ? mock.Object : value;
+		}
+
+		private bool ForceEmptyDefaultValue(MethodInfo member)
+		{
+			return Attribute.IsDefined(member.ReturnType, typeof (ForceEmptyDefaultValueAttribute));
 		}
 	}
 }

@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConditionalContext.cs" />
+    <Compile Include="ForceEmptyDefaultValueAttribute.cs" />
     <Compile Include="IInterceptStrategy.cs" />
     <Compile Include="IMock.cs" />
     <Compile Include="InterceptorStrategies.cs" />
